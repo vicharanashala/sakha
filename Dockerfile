@@ -14,6 +14,15 @@ ENV LD_PRELOAD=/usr/lib/libjemalloc.so.2
 COPY --from=ghcr.io/astral-sh/uv:0.9.5-python3.12-alpine /usr/local/bin/uv /usr/local/bin/uvx /bin/
 RUN uv --version
 
+# ---- Tailscale binaries ----
+COPY --from=docker.io/tailscale/tailscale:stable /usr/local/bin/tailscaled /app/tailscaled
+COPY --from=docker.io/tailscale/tailscale:stable /usr/local/bin/tailscale /app/tailscale
+
+# Tailscale runtime dirs
+RUN mkdir -p /var/run/tailscale /var/cache/tailscale /var/lib/tailscale \
+ && chown -R node:node /var/run/tailscale /var/cache/tailscale /var/lib/tailscale
+
+# App setup
 RUN mkdir -p /app && chown node:node /app
 WORKDIR /app
 
@@ -44,14 +53,12 @@ RUN \
     npm prune --production; \
     npm cache clean --force
 
-# Node API setup
+# Startup script
+COPY --chown=node:node scripts/start.sh /app/start.sh
+RUN chmod +x /app/start.sh
+
 EXPOSE 3080
 ENV HOST=0.0.0.0
-CMD ["npm", "run", "backend"]
 
-# Optional: for client with nginx routing
-# FROM nginx:stable-alpine AS nginx-client
-# WORKDIR /usr/share/nginx/html
-# COPY --from=node /app/client/dist /usr/share/nginx/html
-# COPY client/nginx.conf /etc/nginx/conf.d/default.conf
-# ENTRYPOINT ["nginx", "-g", "daemon off;"]
+ENTRYPOINT []
+CMD ["sh", "/app/start.sh"]
