@@ -27,7 +27,27 @@ export HTTP_PROXY="$SOCKS_PROXY"
 export HTTPS_PROXY="$SOCKS_PROXY"
 export PROXY="$SOCKS_PROXY"
 
-export NO_PROXY="localhost,127.0.0.1,::1,metadata.google.internal,169.254.169.254"
+export NO_PROXY="localhost,127.0.0.1,::1,raw.githubusercontent.com,github.com,metadata.google.internal,169.254.169.254"
 
-echo "▶ Starting LibreChat backend..."
-exec npm run backend
+# ---- Infisical auth ----
+echo "▶ Authenticating with Infisical..."
+
+export INFISICAL_TOKEN=$(
+  infisical login \
+    --method=universal-auth \
+    --client-id="$INFISICAL_CLIENT_ID" \
+    --client-secret="$INFISICAL_CLIENT_SECRET" \
+    --silent \
+    --plain
+)
+
+echo "✅ Infisical authenticated"
+
+# ---- Start LibreChat with secrets injected ----
+echo "▶ Starting LibreChat with Infisical secrets..."
+
+exec infisical run \
+  --env=prod \
+  --projectId="$INFISICAL_PROJECT_ID" \
+  --path="$INFISICAL_ENV_PATH" \
+  -- npm run backend
