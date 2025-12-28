@@ -2,6 +2,15 @@ name: GCP Deployment
 
 on:
   workflow_dispatch:
+    inputs:
+      skip_build:
+        description: "Skip Docker build & push"
+        required: false
+        default: "false"
+        type: choice
+        options:
+          - "false"
+          - "true"
 
 permissions:
   contents: read
@@ -14,6 +23,7 @@ env:
 
 jobs:
   build:
+    if: github.event.inputs.skip_build != 'true'
     name: Build & Push Image
     runs-on: ubuntu-latest
 
@@ -42,6 +52,7 @@ jobs:
             ${{ secrets.DOCKERHUB_USERNAME }}/${{ env.DOCKER_IMAGE }}:${{ github.sha }}
 
   deploy:
+    if: always() && (github.event.inputs.skip_build == 'true' || needs.build.result == 'success')
     name: Deploy to Cloud Run (Production)
     needs: [build]
     runs-on: ubuntu-latest
