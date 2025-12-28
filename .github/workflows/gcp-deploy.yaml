@@ -8,6 +8,10 @@ permissions:
   packages: write
   id-token: write
 
+env:
+  DOCKER_IMAGE: sakha-client
+
+
 jobs:
   build:
     name: Build & Push Image
