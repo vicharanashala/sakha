@@ -10,7 +10,7 @@ echo ""
 # ============================================================
 # STEP 1: Start Tailscale Daemon
 # ============================================================
-echo "▶ [1/8] Starting Tailscale daemon..."
+echo "▶ [1/7] Starting Tailscale daemon..."
 /app/tailscaled \
   --tun=userspace-networking \
   --socks5-server=localhost:1055 \
@@ -24,7 +24,7 @@ sleep 3
 # STEP 2: Authenticate with Tailscale
 # ============================================================
 echo ""
-echo "▶ [2/8] Authenticating with Tailscale..."
+echo "▶ [2/7] Authenticating with Tailscale..."
 /app/tailscale up \
   --auth-key="${TAILSCALE_AUTHKEY}" \
   --hostname=librechat-cloudrun \
@@ -41,7 +41,7 @@ fi
 # STEP 3: Wait for Backend to be Running
 # ============================================================
 echo ""
-echo "▶ [3/8] Waiting for Tailscale backend to initialize..."
+echo "▶ [3/7] Waiting for Tailscale backend to initialize..."
 RETRY_COUNT=0
 MAX_RETRIES=60
 
@@ -78,7 +78,7 @@ fi
 # STEP 4: Wait for Peer Connections
 # ============================================================
 echo ""
-echo "▶ [4/8] Waiting for peer connections to stabilize..."
+echo "▶ [4/7] Waiting for peer connections to stabilize..."
 echo "   (Giving network 15 seconds to establish connections)"
 
 for i in 1 2 3 4 5 6 7 8 9 10 11 12 13 14 15; do
@@ -92,62 +92,17 @@ echo "   ✓ Stabilization period complete"
 # STEP 5: Display Tailscale Status
 # ============================================================
 echo ""
-echo "▶ [5/8] Current Tailscale Status:"
+echo "▶ [5/7] Current Tailscale Status:"
 echo "────────────────────────────────────────────────────────────"
 /app/tailscale status | head -20  # Show first 20 lines to avoid clutter
 echo "   ... (showing first 20 peers)"
 echo "────────────────────────────────────────────────────────────"
 
 # ============================================================
-# STEP 6: Test MCP Server Connectivity
+# STEP 6: Configure Proxy Environment
 # ============================================================
 echo ""
-echo "▶ [6/8] Testing connectivity to MCP servers..."
-
-# Your MCP server - UPDATE THIS IP if it's different!
-MCP_HOST="100.100.108.13"
-
-# Define your MCP servers
-MCP_SERVERS="
-$MCP_HOST:9001:golden
-$MCP_HOST:9002:pop
-$MCP_HOST:9003:market
-$MCP_HOST:9004:weather
-$MCP_HOST:9005:faq-videos
-"
-
-ALL_TESTS_PASSED=true
-
-echo "$MCP_SERVERS" | while IFS=':' read -r HOST PORT NAME; do
-  if [ -n "$HOST" ] && [ -n "$PORT" ]; then
-    printf "   Testing %-12s (%s:%s)... " "$NAME" "$HOST" "$PORT"
-    
-    # Test with netcat through proxychains
-    if timeout 5 proxychains4 -q nc -zv "$HOST" "$PORT" 2>&1 | grep -q "succeeded\|open"; then
-      echo "✓ reachable"
-    else
-      echo "✗ NOT reachable"
-      ALL_TESTS_PASSED=false
-    fi
-  fi
-done
-
-if [ "$ALL_TESTS_PASSED" = false ]; then
-  echo ""
-  echo "⚠️  WARNING: Some MCP servers are not reachable"
-  echo "   LibreChat will start, but MCP tools may not work"
-  echo ""
-  echo "   Troubleshooting:"
-  echo "   1. Verify MCP server IP: $MCP_HOST"
-  echo "   2. Check if MCP servers are running on ports 9001-9005"
-  echo "   3. Verify Tailscale ACLs allow connections"
-fi
-
-# ============================================================
-# STEP 7: Configure Proxy Environment
-# ============================================================
-echo ""
-echo "▶ [7/8] Configuring proxy environment..."
+echo "▶ [6/7] Configuring proxy environment..."
 SOCKS_PROXY="socks5://localhost:1055"
 export ALL_PROXY="$SOCKS_PROXY"
 export HTTP_PROXY="$SOCKS_PROXY"
@@ -158,10 +113,10 @@ export NO_PROXY="localhost,127.0.0.1,::1,raw.githubusercontent.com,github.com,me
 echo "   ✓ Proxy configured: $SOCKS_PROXY"
 
 # ============================================================
-# STEP 8: Infisical Authentication
+# STEP 7: Infisical Authentication
 # ============================================================
 echo ""
-echo "▶ [8/8] Authenticating with Infisical..."
+echo "▶ [7/7] Authenticating with Infisical..."
 export INFISICAL_TOKEN=$(
   infisical login \
     --method=universal-auth \
