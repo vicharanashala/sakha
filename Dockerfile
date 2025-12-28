@@ -1,7 +1,6 @@
 # v0.8.2-rc1
 
 # Base node image
-# Base node image (Ubuntu/Debian)
 FROM node:20-bookworm-slim
 
 # ---- System deps ----
@@ -13,14 +12,15 @@ RUN apt-get update && apt-get install -y \
     python3 \
     python3-pip \
     proxychains4 \
+    netcat-openbsd \
+    iputils-ping \
+    dnsutils \
     && rm -rf /var/lib/apt/lists/*
+    
 RUN curl -1sLf \
 'https://artifacts-cli.infisical.com/setup.deb.sh' \
 | bash
 RUN apt-get update && apt-get install -y infisical
-
-# Set environment variable to use jemalloc
-ENV LD_PRELOAD=/usr/lib/x86_64-linux-gnu/libjemalloc.so.2
 
 # Add `uv` for extended MCP support
 COPY --from=ghcr.io/astral-sh/uv:0.9.5-python3.12-alpine /usr/local/bin/uv /usr/local/bin/uvx /bin/
@@ -37,6 +37,7 @@ RUN mkdir -p /var/run/tailscale /var/cache/tailscale /var/lib/tailscale \
 # ---- proxychains configuration ----
 RUN echo "strict_chain" > /etc/proxychains4.conf && \
     echo "proxy_dns" >> /etc/proxychains4.conf && \
+    echo "quiet_mode" >> /etc/proxychains4.conf && \
     echo "[ProxyList]" >> /etc/proxychains4.conf && \
     echo "socks5 127.0.0.1 1055" >> /etc/proxychains4.conf
 
