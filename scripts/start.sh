@@ -4,12 +4,12 @@ set -e
 echo "▶ Starting Tailscale..."
 
 # Start Tailscale daemon (userspace)
- /app/tailscaled \
+/app/tailscaled \
   --tun=userspace-networking \
   --socks5-server=localhost:1055 &
 
-# Give it a moment
-sleep 2
+# Give it more time
+sleep 5
 
 # Authenticate
 /app/tailscale up \
@@ -19,7 +19,10 @@ sleep 2
 
 echo "✅ Tailscale connected"
 
-# Tailscale SOCKS proxy
+# Verify connectivity
+/app/tailscale status
+
+# Tailscale SOCKS proxy (keep these for other processes that might need them)
 SOCKS_PROXY="socks5://localhost:1055"
 
 export ALL_PROXY="$SOCKS_PROXY"
@@ -45,8 +48,7 @@ echo "✅ Infisical authenticated"
 
 # ---- Start LibreChat with secrets injected ----
 echo "▶ Starting LibreChat with Infisical secrets..."
-
-exec infisical run \
+exec proxychains4 -q infisical run \
   --env=prod \
   --projectId="$INFISICAL_PROJECT_ID" \
   --path="$INFISICAL_ENV_PATH" \
