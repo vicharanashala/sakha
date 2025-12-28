@@ -6,13 +6,11 @@ on:
 permissions:
   contents: read
   packages: write
-
-env:
-  DOCKER_IMAGE: sakha-client
+  id-token: write
 
 jobs:
   build:
-    name: Build & Push LibreChat Image
+    name: Build & Push Image
     runs-on: ubuntu-latest
 
     steps:
@@ -36,5 +34,36 @@ jobs:
           push: true
           platforms: linux/amd64
           tags: |
-            ${{ secrets.DOCKERHUB_USERNAME }}/${{ env.DOCKER_IMAGE }}:latest
-            ${{ secrets.DOCKERHUB_USERNAME }}/${{ env.DOCKER_IMAGE }}:${{ github.sha }}
+            ${{ secrets.DOCKERHUB_USERNAME }}/${{ vars.DOCKER_IMAGE }}:latest
+            ${{ secrets.DOCKERHUB_USERNAME }}/${{ vars.DOCKER_IMAGE }}:${{ github.sha }}
+
+  deploy:
+    name: Deploy to Cloud Run (Production)
+    needs: [build]
+    runs-on: ubuntu-latest
+    environment:
+      name: production
+
+    steps:
+      - name: Authenticate to Google Cloud
+        uses: google-github-actions/auth@v2
+        with:
+          credentials_json: '${{ secrets.GCP_GH_SA_KEY }}'
+
+      - name: Deploy to Cloud Run
+        uses: google-github-actions/deploy-cloudrun@v1
+        with:
+          project_id: ${{ secrets.GCP_PROJECT_ID }}
+          service: ${{ vars.GCP_SERVICE }}
+          region: ${{ vars.GCP_REGION }}
+          image: ${{ secrets.DOCKERHUB_USERNAME }}/${{ vars.DOCKER_IMAGE }}:latest
+          env_vars: |
+            PORT=${{ vars.CONTAINER_PORT }}
+            TAILSCALE_AUTHKEY=${{ secrets.TAILSCALE_AUTHKEY }}
+            INFISICAL_CLIENT_ID=${{ secrets.INFISICAL_CLIENT_ID }}
+            INFISICAL_CLIENT_SECRET=${{ secrets.INFISICAL_CLIENT_SECRET }}
+            INFISICAL_PROJECT_ID=${{ secrets.INFISICAL_PROJECT_ID }}
+            INFISICAL_ENV_PATH=${{ secrets.INFISICAL_ENV_PATH }}
+          flags: >
+            --allow-unauthenticated
+            --port=${{ vars.CONTAINER_PORT }}
