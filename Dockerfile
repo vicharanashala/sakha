@@ -12,6 +12,7 @@ RUN apt-get update && apt-get install -y \
     libjemalloc2 \
     python3 \
     python3-pip \
+    proxychains4 \
     && rm -rf /var/lib/apt/lists/*
 RUN curl -1sLf \
 'https://artifacts-cli.infisical.com/setup.deb.sh' \
@@ -32,6 +33,12 @@ COPY --from=docker.io/tailscale/tailscale:stable /usr/local/bin/tailscale /app/t
 # Tailscale runtime dirs
 RUN mkdir -p /var/run/tailscale /var/cache/tailscale /var/lib/tailscale \
  && chown -R node:node /var/run/tailscale /var/cache/tailscale /var/lib/tailscale
+
+# ---- proxychains configuration ----
+RUN echo "strict_chain" > /etc/proxychains4.conf && \
+    echo "proxy_dns" >> /etc/proxychains4.conf && \
+    echo "[ProxyList]" >> /etc/proxychains4.conf && \
+    echo "socks5 127.0.0.1 1055" >> /etc/proxychains4.conf
 
 # App setup
 RUN mkdir -p /app && chown node:node /app
