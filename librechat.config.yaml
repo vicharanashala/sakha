@@ -5,7 +5,7 @@ cache: true
 
 interface:
   mcpServers:
-    placeholder: "MCP Servers"
+    placeholder: "Sources"
     use: true
     create: true
     share: true
