@@ -43,7 +43,7 @@ fi
 echo ""
 echo "▶ [3/7] Waiting for Tailscale backend to initialize..."
 RETRY_COUNT=0
-MAX_RETRIES=60
+MAX_RETRIES=10
 
 while [ $RETRY_COUNT -lt $MAX_RETRIES ]; do
   # Check if tailscale status returns successfully (exit code 0)
@@ -77,16 +77,16 @@ fi
 # ============================================================
 # STEP 4: Wait for Peer Connections
 # ============================================================
-echo ""
-echo "▶ [4/7] Waiting for peer connections to stabilize..."
-echo "   (Giving network 15 seconds to establish connections)"
+# echo ""
+# echo "▶ [4/7] Waiting for peer connections to stabilize..."
+# echo "   (Giving network 15 seconds to establish connections)"
 
-for i in 1 2 3 4 5 6 7 8 9 10 11 12 13 14 15; do
-  echo "   ⏳ ${i}/15 seconds..."
-  sleep 1
-done
+# for i in 1 2 3 4 5 6 7 8 9 10 11 12 13 14 15; do
+#   echo "   ⏳ ${i}/15 seconds..."
+#   sleep 1
+# done
 
-echo "   ✓ Stabilization period complete"
+# echo "   ✓ Stabilization period complete"
 
 # ============================================================
 # STEP 5: Display Tailscale Status
