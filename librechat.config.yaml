@@ -116,6 +116,20 @@ mcpServers:
     timeout: 60000  # 1 minute timeout for this server, this is the default timeout for MCP servers.
     initTimeout: 120000
 
+endpoints:
+  - name: "vLLM"
+    apiKey: "vllm"
+    baseURL: "http://iitropar-vm03:8001/v1"
+    models:
+      default: ['Qwen/Qwen2.5-3B-Instruct']
+      fetch: true
+    titleConvo: true
+    titleModel: "current_model"
+    titleMessageRole: "user"
+    summarize: false
+    summaryModel: "current_model"
+    forcePrompt: false
+
 
 speech:
   stt:
@@ -144,8 +158,8 @@ modelSpecs:
       description: " Friedly assistant to help you know more on vicharanashala"
       iconURL: "https://storage.googleapis.com/annam-temp-images/logo-vled.png"
       preset:
-        endpoint: "anthropic"
-        model: "claude-sonnet-4-5-20250929"
+        endpoint: "vLLM"
+        model: "Qwen/Qwen2.5-3B-Instruct"
         modelLabel: "Sakha"
         promptPrefix: |
           You are Sakha, an AI expert helping people know about VicharanaShala Organization.
