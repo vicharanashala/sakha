@@ -134,6 +134,24 @@ actions:
     - 'google.com'
 
 
+endpoints:
+  
+  custom:
+    - name: "vLLM"
+      apiKey: "vllm"
+      baseURL: "http://100.100.108.29:8064/v1"
+      models:
+        default: ['Qwen/Qwen2.5-3B-Instruct']
+        fetch: true
+      titleConvo: true
+      titleModel: "current_model"
+      titleMessageRole: "user"
+      summarize: false
+      summaryModel: "current_model"
+      forcePrompt: false
+      modelDisplayLabel: "Sakha"  # optional display label in UI
+
+
 modelSpecs:
   enforce: false
   prioritize: true
@@ -144,8 +162,8 @@ modelSpecs:
       description: " Friedly assistant to help you know more on vicharanashala"
       iconURL: "https://storage.googleapis.com/annam-temp-images/logo-vled.png"
       preset:
-        endpoint: "anthropic"
-        model: "claude-sonnet-4-5-20250929"
+        endpoint: "vLLM"
+        model: "Qwen/Qwen2.5-3B-Instruct"
         modelLabel: "Sakha"
         promptPrefix: |
           You are Sakha, an AI expert helping people know about VicharanaShala Organization.
