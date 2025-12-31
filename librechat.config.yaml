@@ -139,7 +139,7 @@ endpoints:
   custom:
     - name: "vLLM"
       apiKey: "vllm"
-      baseURL: "http://iitrpr-vm03:8001/v1"
+      baseURL: "http://iitropar-vm03:8001/v1"
       models:
         default: ['Qwen/Qwen2.5-3B-Instruct']
         fetch: true
