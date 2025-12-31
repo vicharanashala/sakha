@@ -94,36 +94,27 @@ mcpServers:
     type: streamable-http # type can optionally be omitted
     url: http://100.100.108.13:9001/mcp
     timeout: 60000  # 1 minute timeout for this server, this is the default timeout for MCP servers.
+    initTimeout: 120000
   pop:
     type: streamable-http # type can optionally be omitted
     url: http://100.100.108.13:9002/mcp
     timeout: 60000  # 1 minute timeout for this server, this is the default timeout for MCP servers.
+    initTimeout: 120000
   market:
     type: streamable-http # type can optionally be omitted
     url: http://100.100.108.13:9003/mcp
     timeout: 60000  # 1 minute timeout for this server, this is the default timeout for MCP servers.
+    initTimeout: 120000
   weather:
     type: streamable-http # type can optionally be omitted
     url: http://100.100.108.13:9004/mcp
     timeout: 60000  # 1 minute timeout for this server, this is the default timeout for MCP servers.
+    initTimeout: 120000
   faq-videos:
     type: streamable-http # type can optionally be omitted
     url: http://100.100.108.13:9005/mcp
     timeout: 60000  # 1 minute timeout for this server, this is the default timeout for MCP servers.
-
-endpoints:
-  - name: "vllm"
-    apiKey: "vllm"
-    baseURL: "http://iitropar-vm03:8001/v1"
-    models:
-      default: ['Qwen/Qwen2.5-3B-Instruct']
-      fetch: true
-    titleConvo: true
-    titleModel: "current_model"
-    titleMessageRole: "user"
-    summarize: false
-    summaryModel: "current_model"
-    forcePrompt: false
+    initTimeout: 120000
 
 
 speech:
@@ -153,8 +144,8 @@ modelSpecs:
       description: " Friedly assistant to help you know more on vicharanashala"
       iconURL: "https://storage.googleapis.com/annam-temp-images/logo-vled.png"
       preset:
-        endpoint: "vllm"
-        model: "Qwen/Qwen2.5-3B-Instruct"
+        endpoint: "anthropic"
+        model: "claude-sonnet-4-5-20250929"
         modelLabel: "Sakha"
         promptPrefix: |
           You are Sakha, an AI expert helping people know about VicharanaShala Organization.
@@ -166,5 +157,4 @@ modelSpecs:
           The lab aims to create innovative AI-driven solutions to enhance learning experiences and educational outcomes.
 
           Currently, there is a MERN Stack bootcamp for top achiever interns from NPTEL. 
-
 
