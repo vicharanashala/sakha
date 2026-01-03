@@ -1,15 +1,11 @@
 #!/bin/sh
 set -e
 
-echo "▶ Starting Tailscale..."
+echo "Starting Tailscale..."
 
-# Start Tailscale daemon (userspace)
- /app/tailscaled \
-  --tun=userspace-networking \
-  --socks5-server=localhost:1055 &
-
-# Give it a moment
-sleep 2
+# Start Tailscale daemon
+/app/tailscaled --tun=userspace-networking --socks5-server=localhost:1055 &
+sleep 3
 
 # Authenticate
 /app/tailscale up \
@@ -17,21 +13,14 @@ sleep 2
   --hostname=librechat-cloudrun \
   --accept-dns=false
 
-echo "✅ Tailscale connected"
-
-# Tailscale SOCKS proxy
-SOCKS_PROXY="socks5://localhost:1055"
-
-export ALL_PROXY="$SOCKS_PROXY"
-export HTTP_PROXY="$SOCKS_PROXY"
-export HTTPS_PROXY="$SOCKS_PROXY"
-export PROXY="$SOCKS_PROXY"
-
+# Configure proxy
+export ALL_PROXY="socks5://localhost:1055"
+export HTTP_PROXY="$ALL_PROXY"
+export HTTPS_PROXY="$ALL_PROXY"
 export NO_PROXY="localhost,127.0.0.1,::1,raw.githubusercontent.com,github.com,metadata.google.internal,169.254.169.254"
 
-# ---- Infisical auth ----
-echo "▶ Authenticating with Infisical..."
-
+# Authenticate with Infisical
+echo "Authenticating with Infisical..."
 export INFISICAL_TOKEN=$(
   infisical login \
     --method=universal-auth \
@@ -41,12 +30,11 @@ export INFISICAL_TOKEN=$(
     --plain
 )
 
-echo "✅ Infisical authenticated"
+[ -z "$INFISICAL_TOKEN" ] && echo "✗ Infisical auth failed" && exit 1
 
-# ---- Start LibreChat with secrets injected ----
-echo "▶ Starting LibreChat with Infisical secrets..."
-
-exec infisical run \
+# Start LibreChat
+echo "Starting LibreChat..."
+exec proxychains4 -q infisical run \
   --env=prod \
   --projectId="$INFISICAL_PROJECT_ID" \
   --path="$INFISICAL_ENV_PATH" \
